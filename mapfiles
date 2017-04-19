@@ -1,0 +1,41 @@
+#! /usr/bin/env bash
+
+manifest=${1:-manifest}
+COLORS_RED='\033[31m'
+COLORS_GREEN='\033[32m'
+COLORS_YELLOW='\033[33m'
+COLORS_BLUE='\033[34m'
+COLORS_MAGENTA='\033[35m'
+COLORS_CYAN='\033[36m'
+COLORS_NORMAL='\033[0m'
+
+success_msg()
+{
+  echo -e "${COLORS_GREEN}${1}${COLORS_NORMAL}"
+}
+
+error_msg()
+{
+  echo -e "${COLORS_RED}${1}${COLORS_NORMAL}"
+}
+
+[ ! -f "$manifest" ] && echo "no file \"${manifest}\"" && exit 1
+
+while read line
+do
+  from=${line%%:*}
+  to=${line##*:}
+
+  if [ -e "$from" ]
+  then
+    if [ ! -e "$to" ]
+    then
+      mv "$from" "$to"
+      success_msg "${from} -> ${to}"
+    else
+      error_msg "\"${to}\" already exists"
+    fi
+  else
+    error_msg "no file \"${from}\""
+  fi
+done < "$manifest"
